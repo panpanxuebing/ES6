@@ -16,11 +16,11 @@ a // ReferenceError: a is not defined
 b // 1
 ```
 
-### 不存在变量提示
+### 不存在变量提升
 
 ```javascript
 // var 的情况
-console.log(foo); // 输出undefined
+console.log(foo); // 输出 undefined
 var f00 = 2;
 
 // let 的情况
@@ -36,7 +36,7 @@ let bar = 2;
 
 `let` 不允许在相同作用域内，重复声明同一个变量
 
-## 快级作用域
+## 块级作用域
 
 ### ES6 的快级作用域
 
@@ -219,7 +219,7 @@ const constantize = (obj) => {
 
 ### 声明变量的六种方法
 
-- ES5: var,function
+- ES5: var, function
 - ES6: let, const, import, class
 
 ### 顶层对象的属性
