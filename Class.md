@@ -234,3 +234,173 @@ var descriptor = Object.getOwnPropertyDescriptor(MyClass.prototype, 'prop');
 'get' in descriptor; // true
 'set' in descriptor; // true
 ```
+
+## Class 的 Generator 方法
+
+如果某个方法前加上星号（`*`），就表示该方法是一个 Generator 函数。
+
+```javascript
+class Foo {
+    constructor (...args) {
+        this.args = args;
+    }
+
+    * [Symbol.iterator]() {
+        for(let arg of this.args) {
+            yield arg;
+        }
+    }
+}
+
+for(let x of new Foo('hello', 'world')) {
+    console.log(x);
+}
+```
+
+## Class 的静态方法
+
+类相当于实例的原型，所有在类中定义的方法，都会被实例继承。如果在一个方法前，加上关键字 `static`，就表示该方法不会被实例继承，而是通过“类”来直接调用，这称为“静态方法”。
+
+```javascript
+class Foo {
+    static classMethod () {
+        return 'Hello';
+    }
+}
+
+Foo.classMethod(); // 'Hello'
+
+var foo = new Foo();
+foo.classMethod(); // TypeError: foo.classMethod is not a function
+```
+
+注意，如果静态方法包含 `this` 关键字，这个 `this` 指的是类，而不是实例。
+
+```javascript
+class Foo {
+    static bar () {
+        return this.baz();
+    }
+
+    static baz () {
+        return 'Hello'
+    }
+
+    baz () {
+        return 'world'
+    }
+}
+
+Foo.bar(); // 'Hello'
+```
+
+另外，从这个例子可以看出，静态方法可以和非静态方法重名。
+
+父类的静态方法，可以被子类继承。
+
+```javascript
+class Foo {
+  static classMethod() {
+    return 'hello';
+  }
+}
+
+class Bar extends Foo {
+}
+
+Bar.classMethod() // 'hello'
+```
+
+静态方法也是可以从 `super` 对象上调用的。
+
+```javascript
+class Foo {
+    static classMethod () {
+        return 'Hello'
+    }
+}
+
+class Bar extends Foo {
+    static classMethod () {
+        return super.classMethod() + ' world';
+    }
+}
+
+Bar.classMethod(); // 'Hello world'
+```
+
+## Class 的静态属性和实例属性
+
+静态属性指的是 Class 本身的属性，即 `Class.propName`，而不是定义在实例对象（`this`）上的属性。
+
+
+
+```javascript
+class Foo {}
+Foo.prop = 1;
+Foo.prop; // 1
+```
+
+目前，只有这种写法可行，因为 ES6 明确规定，Class 内部只有静态方法，没有静态属性。
+
+## new.target 属性
+
+`new` 是从构造函数生成实例对象的命令。。ES6 为 `new` 命令引入了一个 `new.target` 属性，该属性一般用在构造函数之中，返回 `new` 命令作用于的那个构造函数。如果构造函数不是通过 `new` 命令调用的，`new.target` 就会返回 `undefined`。
+
+```javascript
+function Person (name) {
+    if (new.target !== undefined) {
+        this.name = name;
+    } else {
+        throw new Error('必须使用 new 命令生成实例。');
+    }
+}
+
+var person = new Person ('张三');
+var notAperson = Person.call(person, '张三');
+```
+
+Class 内部调用 `new.target`，返回当前 Class。
+
+```javascript
+class Rectangle  {
+    constructor (width, height) {
+        console.log(new.target === Square);
+        this.width = width;
+        this.height = height;
+    }
+}
+
+var obj = new Rectangle(1, 2); // true
+
+class Square extends Rectangle {
+    constructor (length) {
+        super(length, length);
+    }
+}
+
+var obj = new Square(1); // false
+```
+
+利用这个特点，可以写出不能独立使用，必须继承才能使用的类。
+
+```javascript
+class Shape {
+    constructor () {
+        if (new.target === Shape) {
+            throw new Error('本类不能实例化');
+        }
+    }
+}
+
+class Rectangle extends Shape {
+    constructor (width, height) {
+        super();
+        this.width = width;
+        this.height = height;
+    }
+}
+
+var x = new Shape(); // 报错
+var y = new Rectangle(3, 4); // 正确
+```

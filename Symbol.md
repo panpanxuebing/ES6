@@ -221,7 +221,90 @@ const obj = {
 }
 
 Reflect.ownKeys(obj)
-// [Symbol(my_key), enum, nonEnum]
-
-    
+// [Symbol(my_key), enum, nonEnum] 
 ```
+
+## Symbol.for()，Symbol.keyFor()
+
+有时，我们希望重新使用同一个 Symbol 值，`Symbol.for` 方法可以做到这一点。它接受一个字符串作为参数，然后搜索有没有以该参数作为名称的 Symbol 值。如果有，就返回这个 Symbol 值，否则就新建并返回一个以该字符串为名称的 Symbol 值。
+
+```javascript
+let s1 = Symbol.for('foo');
+let s2 = Symbol.for('foo');
+
+s1 === s2; // true
+```
+
+`Symbol.keyFor` 方法返回一个已登记的 Symbol 类型值的 `key`。
+
+```javascript
+let s1 = Symbol.for('foo');
+Symbol.keyFor(s1); // 'foo'
+
+let s2 = Symbol('foo');
+Symbol.keyFor('foo'); // undefined
+```
+
+## 内置的 Symbol 值
+
+除了定义自己使用的 Symbol 值以外，ES6 还提供了 11 个内置的 Symbol 值，指向语言内部使用的方法。
+
+### Symbol.hasInstance
+
+对象的 `Symbol.hasInstance` 属性，指向一个内部方法。当其他对象使用 `instanceof` 运算符时，会调用这个方法。比如 `foo instanceof Foo` 在语言内部，实际调用的是 `Foo[Symbol.hasInstance](foo)`。
+
+```javascript
+class MyClass {
+    [Symbol.hasInstance] (foo) {
+        return foo instanceof Array;
+    }
+}
+
+[1, 2, 3] instanceof new MyClass() // true
+```
+
+### Symbol.isConcatSpreadable
+
+对象的 `Symbol.isConcatSpreadable` 属性等于一个布尔值，表示该对象用于 `Array.prototype.concat()` 时，是否可以展开。
+
+```javascript
+let arr1 = ['c', 'd'];
+['a', 'b'].concat(arr1, 'e'); // ['a', 'b', 'c', 'd', 'e']
+arr1[Symbol.isConcatSpreadable] // undefined
+
+let arr2 = ['c', 'd'];
+arr2[Symbol.isConcatSpreadable] = false;
+['a', 'b'].concat(arr2, 'e') // ['a', 'b', ['c','d'], 'e']
+```
+
+### Symbol.species
+
+### Symbol.match
+
+### Symbol.replace
+
+### Symbol.search
+
+### Symbol.split
+
+### Symbol.iterator
+
+对象的 `Symbol.iterator` 属性，指向该对象的默认遍历器方法。
+
+```javascript
+myIterator[Symbol.iterator] = function* () {
+    yield 1;
+    yield 2;
+    yield 3;
+};
+
+[...myIterator]; // [1, 2, 3]
+```
+
+对象进行 `for...of` 循环，会调用 `Symbol.iterator` 方法，返回该对象的默认遍历器。
+
+### Symbol.toPrimitive
+
+### Symbol.toStringTag
+
+### Symbol.unscopables
