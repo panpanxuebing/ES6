@@ -16,13 +16,13 @@ ES6 规定，`Promise` 对象是一个构造函数，用来生成 `Promise` 实�
 
 ```javascript
 const promise = new Promise(function (resolve, reject) {
-		// ...some code
+    // ...some code
 
-		if (/* 异步操作成功 */) {
-				reslove(value);
-		} else {
-				reject(error)
-		}
+    if (/* 异步操作成功 */) {
+            reslove(value);
+    } else {
+            reject(error)
+    }
 });
 ```
 
@@ -30,13 +30,13 @@ const promise = new Promise(function (resolve, reject) {
 
 ```javascript
 function timeout(ms) {
-	return new Promise((resolve, reject) => {
-		setTimeout(resolve, ms, 'done');
-	});
+    return new Promise((resolve, reject) => {
+        setTimeout(resolve, ms, 'done');
+    });
 }
 
 timeout(100).then((value) => {
-	console.log(value);
+    console.log(value);
 });
 // 'done'
 ```
@@ -45,12 +45,12 @@ Promise 新建后会立即执行。
 
 ```javascript
 let promise = new Promise((resolve, reject) => {
-	console.log('Promise');
-	resolve();
+    console.log('Promise');
+    resolve();
 });
 
 promise.then(() => {
-	console.log('resolved');
+    console.log('resolved');
 })
 
 console.log('Hi');
@@ -64,23 +64,23 @@ console.log('Hi');
 
 ```javascript
 function loadImageAsync(url) {
-	return new Promise(function(resolve, reject) {
-		const image = new Image();
+    return new Promise(function(resolve, reject) {
+        const image = new Image();
 
-		image.onload = function() {
-			resolve(image);
-		};
+        image.onload = function() {
+            resolve(image);
+        };
 
-		image.onerror = function() {
-			reject(new Error('Could not load image at ' + url));
-		};
+        image.onerror = function() {
+            reject(new Error('Could not load image at ' + url));
+        };
 
-		image.src = url;
-	});
+        image.src = url;
+    });
 }
 
 loadImageAsync('1.jpg').then((image) => {
-	document.getElementById('root').appendChild(image);
+    document.getElementById('root').appendChild(image);
 });
 ```
 
@@ -88,39 +88,39 @@ loadImageAsync('1.jpg').then((image) => {
 
 ```javascript
 const getJson = function (url) {
-	const promise = new Promise((resolve, reject) => {
-		const handler = function () {
-			if (this.readyState !== 4) {
-				return;
-			}
+    const promise = new Promise((resolve, reject) => {
+        const handler = function () {
+            if (this.readyState !== 4) {
+                return;
+            }
 
-			if (this.status === 200) {
-				let result = this.response;
+            if (this.status === 200) {
+                let result = this.response;
 
-				if (typeof result === 'string') {
-					result = JSON.parse(result);
-				}
+                if (typeof result === 'string') {
+                    result = JSON.parse(result);
+                }
 
-				resolve(result);
-			} else {
-				reject(new Error(this.statusText));
-			}
-		}
-		const client = new XMLHttpRequest();
-		client.open('get', url);
-		client.onreadystatechange = handler;
-		client.responseType = 'json';
-		client.setRequestHeader('Accept', 'application/json');
-		client.send();
-	});
+                resolve(result);
+            } else {
+                reject(new Error(this.statusText));
+            }
+        }
+        const client = new XMLHttpRequest();
+        client.open('get', url);
+        client.onreadystatechange = handler;
+        client.responseType = 'json';
+        client.setRequestHeader('Accept', 'application/json');
+        client.send();
+    });
 
-	return promise;
+    return promise;
 }
 
 getJson('include/js/mock-up/json/success.json').then((json) => {
-	console.log(json.msg);
+    console.log(json.msg);
 }, (error) => {
-	console.log('出错了', error);
+    console.log('出错了', error);
 });
 ```
 
@@ -128,16 +128,16 @@ getJson('include/js/mock-up/json/success.json').then((json) => {
 
 ```javascript
 const p1 = new Promise((resolve, reject) => {
-	setTimeout(() => reject(new Error('Failed')), 3000);
+    setTimeout(() => reject(new Error('Failed')), 3000);
 });
 
 const p2 = new Promise((resolve, reject) => {
-	setTimeout(() => resolve(p1), 1000);
+    setTimeout(() => resolve(p1), 1000);
 });
 
 p2
-	.then(result => console.log(result)
-	.then(error => console.log(error));
+    .then(result => console.log(result)
+    .then(error => console.log(error));
 // Error: Failed;
 ```
 
@@ -149,10 +149,10 @@ Promise 实例具有 `then` 方法。它的作用是为 Promise 实例添加状�
 
 ```javascript
 getJSON('/post/1.json').then(
-	post => getJSON(post.commentUrl)
+    post => getJSON(post.commentUrl)
 ).then(
-	comments => console.log('resolved', comments),
-	err => console.log('rejected', err)
+    comments => console.log('resolved', comments),
+    err => console.log('rejected', err)
 )
 ```
 
@@ -162,10 +162,10 @@ getJSON('/post/1.json').then(
 
 ```javascript
 getJSON('/post/1.json').then(
-	// ...
+    // ...
 ).catch(
-	// 处理 getJSON 和前一个回调函数运行时发生的错误。
-	err => console.log('发生错误', err);
+    // 处理 getJSON 和前一个回调函数运行时发生的错误。
+    err => console.log('发生错误', err);
 )
 ```
 
@@ -174,20 +174,20 @@ getJSON('/post/1.json').then(
 ```javascript
 // bad
 promise
-	.then(function (data) {
-		// success
-	}, function (err) {
-		// error
-	});
+    .then(function (data) {
+        // success
+    }, function (err) {
+        // error
+    });
 
 // good
 promise
-	.then(function (data) {
-		// success
-	})
-	.catch(function (err) {
-		// error
-	});
+    .then(function (data) {
+        // success
+    })
+    .catch(function (err) {
+        // error
+    });
 ```
 
 上面的两种写法中，建议使用第二种。理由是第二种可以捕获前面 `then` 方法中执行的错误，也更接近同步的写法( `try/catch` )。
@@ -196,14 +196,14 @@ promise
 
 ```javascript
 const someAsyncThing = function () {
-	return new Promise(function (resolve, reject) {
-		// 下面一个代码报错，因为 x 没有声明
-		resolve(x + 1);
-	})
+    return new Promise(function (resolve, reject) {
+        // 下面一个代码报错，因为 x 没有声明
+        resolve(x + 1);
+    })
 }
 
 someAsyncThing().then(
-	() => console.log('everything is great')
+    () => console.log('everything is great')
 );
 
 console.log('I\'m still work out.');
@@ -233,13 +233,13 @@ const p = Promise.all([p1, p2, p3]);
 
 ```javascript
 const promises = [1, 2].map(id => {
-	return Main.get('include/js/mock-up/json/success.json')
+    return Main.get('include/js/mock-up/json/success.json')
 });
 
 Promise.all(promises).then(
-	result => console.log(result)
+    result => console.log(result)
 ).catch(
-	err => console.log(err)
+    err => console.log(err)
 );
 ```
 
@@ -249,14 +249,14 @@ Promise.all(promises).then(
 const databasePromise = connectDatabase();
 
 const booksPromise = databasePromise
-	.then(findAllBooks);
+    .then(findAllBooks);
 
 const usePromise = databasePromise()
-	.then(getCurrentUser);
+    .then(getCurrentUser);
 
 Promise.all([
-	booksPromise,
-	usePromise
+    booksPromise,
+    usePromise
 ])
 .then([books, user]) => pickTopRecomentations(books, users);
 ```
@@ -265,20 +265,20 @@ Promise.all([
 
 ```javascript
 const p1 = new Promise((resolve, reject) => {
-	resolve('hello');
+    resolve('hello');
 })
-	.then(result => result)
-	.catch(err => err);
+    .then(result => result)
+    .catch(err => err);
 
 const p2 = new Promise((resolve, reject) => {
-	throw new Error('报错了');
+    throw new Error('报错了');
 })
-	.then(result => result)
-	.catch(err => err);
+    .then(result => result)
+    .catch(err => err);
 
 Promise.all([p1, p2])
-	.then(result => console.log(result))
-	.catch(err => console.log(err));
+    .then(result => console.log(result))
+    .catch(err => console.log(err));
 // ["hello", Error: 报错了]	
 ```
 
@@ -296,10 +296,10 @@ const p = Promise.race([p1, p2, p3]);
 
 ```javascript
 const p = Promise.race([
-	fetch('/resource-that-may-take-a-while'),
-	new Promise((resolve, reject) => {
-		setTimeout(() => reject(new Error('request timeout')), 5000)
-	})
+    fetch('/resource-that-may-take-a-while'),
+    new Promise((resolve, reject) => {
+        setTimeout(() => reject(new Error('request timeout')), 5000)
+    })
 ]);
 
 p
@@ -337,9 +337,9 @@ new Promise(resolve => resolve('foo'))
 
 ```javascript
 let thenable = {
-	then: function (resolve, rejet) {
-		resolve('foo')
-	}
+    then: function (resolve, rejet) {
+        resolve('foo')
+    }
 }
 ```
 
@@ -347,14 +347,14 @@ let thenable = {
 
 ```javascript
 let thenable = {
-	then: function (resolve, rejet) {
-		resolve('foo')
-	}
+    then: function (resolve, rejet) {
+        resolve('foo')
+    }
 };
 
 let p1 = Promise.resolve(thenable);
 p1.then(
-	value => console.log(value); // 'foo'
+    value => console.log(value); // 'foo'
 );
 ```
 
@@ -366,7 +366,7 @@ p1.then(
 const p = Promise.resolve({});
 
 p.then(
-	s => console.log(s) // 'Hello'
+    s => console.log(s) // 'Hello'
 )
 ```
 
@@ -382,34 +382,34 @@ Generator 函数和 Promise 的结合
 
 ```javascript
 function getFoo () {
-	return new Promise((resolve, reject) => {
-		resolve('foo');
-	})
+    return new Promise((resolve, reject) => {
+        resolve('foo');
+    })
 }
 
 const g = function* () {
-	try {
-		const foo = yield getFoo();
-		console.log(foo);
-	} catch (err) {
-		console.log(err)
-	}
+    try {
+        const foo = yield getFoo();
+        console.log(foo);
+    } catch (err) {
+        console.log(err)
+    }
 }
-
+                        
 function run (generator) {
-	const it = generator();
+    const it = generator();
 
-	const go = function (result) {
-		if (result.done) return result.value;
+    const go = function (result) {
+        if (result.done) return result.value;
 
-		return result.value
-			.then(
-				value => go(it.next(value)),
-				err => go(it.throw(error))
-			)
-	}
+        return result.value
+            .then(
+                value => go(it.next(value)),
+                err => go(it.throw(error))
+            )
+    }
 
-	go(it.next());
+    go(it.next());
 }
 
 run(g);
