@@ -143,3 +143,56 @@ g.throw('出错了');
 
 ### 异步任务的封装
 
+利用之前在 Promise 一章写的一个请求函数，我们来执行一个真实的异步任务。
+```javascript
+// 用 Promise 封装的一个请求函数
+const getJson = function (url) {
+    const promise = new Promise((resolve, reject) => {
+        const handler = function () {
+            if (this.readyState !== 4) {
+                return;
+            }
+
+            if (this.status === 200) {
+                let result = this.response;
+
+                if (typeof result === 'string') {
+                    result = JSON.parse(result);
+                }
+
+                resolve(result);
+            } else {
+                reject(new Error(this.statusText));
+            }
+        }
+        const client = new XMLHttpRequest();
+        client.open('get', url);
+        client.onreadystatechange = handler;
+        client.responseType = 'json';
+        client.setRequestHeader('Accept', 'application/json');
+        client.send();
+    });
+
+    return promise;
+}
+
+// Generator 函数
+function* gen (url) {
+    var result = yield getJson(url);
+    console.log(result.bio);
+}
+
+// 执行
+const g = gen('https://api.github.com/users/github');
+const result = g.next(); // {value: Promise, done: false}
+
+// 因为 getJson 函数返回的是一个 Promose 对象，所以要用 then 方法来调用下一个 next 方法。
+result.value.then(data => {
+    g.next(data);
+});
+// How people build software.
+```
+
+### Thunk 函数
+
+Thunk 函数是自动执行 Generator 函数的一种方法。
