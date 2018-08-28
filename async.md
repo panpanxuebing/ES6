@@ -396,3 +396,159 @@ asfnc function loginOrder (urls) {
     console.log(result);
 }
 ```
+
+## 异步遍历器
+
+当我们执行 Iterator 遍历器对象的 `next` 方法，就会同步地返回值，即 `value` 和 `done` 属性。但这在异步操作中是不太合适的。我们现在的解决方法是，`value` 属性值返回一个 Promise 对象或者 Thunk 函数 ，然后等待异步操作的结果，而 `done` 的属性值还是同步产生的。
+
+ES2018 引入了“异步遍历器”（Async Iterator），为异步操作提供原生的遍历器接口，即 `value` 和 `done` 属性都是异步产生的。
+
+### 异步遍历的接口
+
+异步遍历器最大的语法特点，就是调用遍历器的 `next` 方法，返回的是一个 Promise 对象。
+而回调函数的参数，则是一个具有 `value` 和 `done` 两个属性的对象，这个跟同步遍历器是一样的。
+
+```js
+asyncIterator
+.next()
+.then({value, done} => {
+    // ...
+})
+```
+
+我们知道，一个对象的遍历器接口是部署在 `Symbol[iterator` 属性上面。类似的，对象的异步遍历器的接口，部署在 `Symbol[asyncIterator]` 属性上面。不管什么对象，只要部署了这个属性，就表达应该对它进行异步遍历操作。
+
+举一个栗子。
+
+```js
+const asyncIterable = createAsyncIterable(['a', 'b']);
+const asyncIterator = asyncIterable[Symbol.asyncIterator];
+
+asyncIterator
+.next()
+.then((iterResult1) => {
+    console.log(iterResult1); // { value: 'a', done: false }
+    return asyncIterator.next();
+})
+.then((iterResult2) => {
+    console.log(iterResult2); // { value: 'b', done: false }
+    return asyncIterator.next();
+})
+.then(iterResult3 => {
+    console.log(iterResult3); // { value: undefined, done: true }
+})
+```
+
+由于异步遍历器的 `next` 方法，返回的是一个 Promise 对象。因此，可以将它放在 `await` 命令后面。
+
+```js
+async function f () {
+    const asyncIterable = createAsyncIterable(['a', 'b']);
+    const asyncIterator = asyncIterable[Symbol.asyncIterator];
+
+    const iterResult1 = await asyncIterator().next(); // { value: 'a', done: false }
+    const iterRusult2 = await asyncIterator().next(); // { value: 'b', done: false }
+    const iterRusult3 = await asyncIterator().next(); // { value: undefined, done: true }
+}
+```
+
+注意，异步操作的 `next` 方法是连续调用的，不必等到上一步产生的 Promise 对象 `resolve` 以后再调用。这种情况下，`next` 方法会累积起来，自动按照每一步的顺序运行下去。我们可以把 `next` 方法放在 `Promise.all` 里面。
+
+```js
+const asyncIterable = createAsyncIterable(['a', 'b']);
+const asyncIterator = asyncIterable[Symbol.asyncIterator];
+const [{value: v1}, {value: v2}] = await Promise.all([
+    asyncIterator.next(), asyncIterator.next()
+]);
+
+console.log(v1, v2); // a b
+```
+
+### for await...of
+
+我们知道，`for...of` 可以用来遍历不同的 Iterator 接口。新引入的 `for wait...of`，则是用来遍历异步的 Iterator 接口。
+
+```js
+async function f () {
+    for await (const x of createAsyncIterator(['a', 'b'])) {
+        console.log(x);
+    }
+}
+// a b
+```
+
+上面的代码中，`createAsyncIterator` 返回一个拥有异步遍历器接口的对象，`for...of` 循环自动调用这个对象的异步遍历器
+
+```js
+// 传统写法
+function mian(fileName) {
+    const readStream = fs.createReadStream(
+        fileName,
+        { encoding: 'utf-8', hignWaterMark: 1024 }
+    );
+
+    readStream.on('data', (thunk) => {
+        console.log('>>>' + thunk);
+    });
+
+    readStream.end('end', () => {
+        console.log('### DONE ###');
+    });
+}
+
+// 异步遍历写法
+async function main(fileName) {
+    const readStream = fs.createReadStream(
+        fileName,
+        { encoding: 'utf-8', hignWaterMark: 1024 }
+    );
+
+    for await (const thunk of readStream) {
+        console.log('>>>' + thunk);
+    }
+
+    console.log('### DONE ###');
+}
+```
+
+### 异步 Generator 函数
+
+就像 Generator 函数返回一个同步遍历器对象一样，异步 Generator 函数的作用，是返回一个异步遍历器对象。
+
+在语法上，异步 Generator 函数就是 `async` 函数与 Generator 函数的结合。
+
+```js
+async function* gen() {
+    yield 'hello';
+}
+
+const genObj = gen();
+genObj.next().then(x => console.log(x));
+// {value: 'hello', done: false}
+```
+
+上面的代码中，`gen` 是一个异步 Generator 函数，执行后返回一个异步 Iterator 对象。对该对象调用 `next` 方法后，返回一个 Promise 对象。
+
+异步遍历器的设计目的之一是，Generator 函数处理同步和异步操作时，能够共用同一套接口。
+
+```js
+// 同步 Generator 函数
+function* map(iterable, func) {
+    const iter = iterable[Symbol.iterator]();
+    while (true) {
+        const {value, done} = iter.next();
+        if (done) break;
+        yield func(value);
+    }
+}
+
+// 异步 Generator 函数
+async function* map(iterable, func) {
+    const iter = iterable[Symbol.asyncIterator]();
+    while (true) {
+        const {value, done} = await iter.next();
+        if (done) break;
+        yield func(value);
+    }
+}
+```
