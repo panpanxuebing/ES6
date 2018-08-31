@@ -2,15 +2,15 @@
 
 ## 含义
 
-Iterator 是一种接口，为各种数据结构提供统一的访问机制。任何数据只要部署了 Iterator 接口，就可以完成遍历操作。
+Iterator 是一种接口，为各种数据结构提供统一的访问机制。任何数据只要部署了 Iterator 接口，就可以完成遍历操作。
 
 Iterator 的作用有三个：一是为各种数据结构，提供一个统一的、简便的访问接口；二是使得数据结构的成员能够按某种次序排列；三是 ES6 创造了一种新的遍历命令 `for...of` 循环，Iterator 接口主要供 `for...of` 消费。
 
 ## 默认 Iterator 接口
 
-一种数据只要部署了 Iterator 接口，就称九种数据结构是“可遍历的”（iterable）。
+一种数据只要部署了 Iterator 接口，就称九种数据结构是“可遍历的”（iterable）。
 
-ES6 规定，默认的 Iterator 接口部署在数据结构的 `Symbol.iterater` 属性上。可以这样说，只要一个数据结构拥有 `Synbol.iterator` 属性，就称它是“可遍历的”。
+ES6 规定，默认的 Iterator 接口部署在数据结构的 `Symbol.iterater` 属性上。可以这样说，只要一个数据结构拥有 `Synbol.iterator` 属性，就称它是“可遍历的”。
 
 ```javascript
 const obj = {
@@ -29,7 +29,7 @@ const obj = {
 
 上面的代码中，`obj` 是可遍历的，因为它具有 `Symbol.iterator` 属性。
 
-ES6 的某些数据结构原生具备 Iterator 接口，即不用做任何处理，就可以被 `for...of` 循环遍历。原生具备 Iterator 接口的数据结构如下。
+ES6 的某些数据结构原生具备 Iterator 接口，即不用做任何处理，就可以被 `for...of` 循环遍历。原生具备 Iterator 接口的数据结构如下。
 
 - Array
 - Map
@@ -39,7 +39,7 @@ ES6 的某些数据结构原生具备 Iterator 接口，即不用做任何处理
 - 函数的 argumengs 对象
 - NodeList 对象
 
-下面的例子是数组的 `Symbol.Iterator` 属性。
+下面的例子是数组的 `Symbol.Iterator` 属性。
 
 ```javascript
 const arr = [1, 2, 3];
@@ -51,7 +51,7 @@ iter.next(); // {value: 3, done: false}
 iter.next(); //{value: undefined, done: true}
 ```
 
-下面是一个为对象添加 Iteraror 接口的例子。
+下面是一个为对象添加 Iteraror 接口的例子。
 
 ```javascript
 const obj = {
@@ -82,7 +82,7 @@ for (let i of obj) {
 // world
 ```
 
-对于类数组（存在键名和 `length` 属性），部署 Iterator 接口，有一个简便方法，就是 `Symbol.iterator` 方法直接引用数组的 Iterator 接口。
+对于类数组（存在键名和 `length` 属性），部署 Iterator 接口，有一个简便方法，就是 `Symbol.iterator` 方法直接引用数组的 Iterator 接口。
 
 ```javascript
 let obj = {
@@ -99,7 +99,7 @@ for(let i of obj) {
 // 'a' ,'b', 'c'
 ```
 
-有了遍历器接口，数据接口就可以用 `for...of` 或者 `while` 循环遍历。
+有了遍历器接口，数据接口就可以用 `for...of` 或者 `while` 循环遍历。
 
 ```javascript
 const $iterator = ITERATOR[Symbol.iterator]();
@@ -113,7 +113,7 @@ while (!$result.done) {
 
 ```
 
-## 调用 Iterator 的场景
+## 调用 Iterator 的场景
 
 ### 解构赋值
 
@@ -167,7 +167,7 @@ iterator.next() // {value: undefined, done: true}
 
 ### 其他场合
 
-由于数组的遍历会调用遍历器接口，所以任何接受数组作为参数的场合，其实都调用了遍历器接口。
+由于数组的遍历会调用遍历器接口，所以任何接受数组作为参数的场合，其实都调用了遍历器接口。
 
 - for...of
 - Array.from
@@ -177,7 +177,7 @@ iterator.next() // {value: undefined, done: true}
 
 ## Iterator 接口与 Generator 函数
 
-`Symbol.iterator` 方法的最简直实现，还是使用 Generator 函数。
+`Symbol.iterator` 方法的最简直实现，还是使用 Generator 函数。
 
 ```javascript
 let myIterator = {
